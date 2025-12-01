@@ -8,7 +8,7 @@ session = Session()
 session.add(product)
 session.commit()
 
-with open("../products.csv", mode = 'r') as products_file:
+with open("products.csv", mode ='r') as products_file:
     products_raw = csv.DictReader(products_file)
     for product_raw in products_raw:
         product = Product()

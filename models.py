@@ -13,7 +13,7 @@ class Product(db.Model):
     name = mapped_column(String)
     price = mapped_column(DECIMAL(10, 2))
     inventory = mapped_column(Integer, default=0)
-    category_id = mapped_column(Integer, ForeignKey("categories.id"))
+    category_id = mapped_column(Integer, ForeignKey("categories.id"), nullable=False)
     category = relationship("Category", back_populates="products")
 
 class Category(db.Model):
@@ -22,6 +22,13 @@ class Category(db.Model):
     id = mapped_column(Integer, primary_key=True)
     name = mapped_column(String)
     products = relationship("Product", back_populates="category")
+
+class Customer(db.Model):
+    __tablename__ = "customers"
+    id = mapped_column(Integer, primary_key=True)
+    name = mapped_column(String(100))
+    phone = mapped_column(String(14))
+
 
 
 
