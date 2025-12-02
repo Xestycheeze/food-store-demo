@@ -1,30 +1,55 @@
-import csv
+import csv, sys
 from pathlib import Path
+
 
 from app import app
 from db import db
 from models import Product, Category, Customer
 
+
+def main(cmd):
+    match cmd.lower():
+        case "initialize":
+            drop_tables()
+            create_tables()
+        case "nuke":
+            drop_tables()
+        case "import":
+            import_data()
+        case _:
+            print("Enter a valid command. (Initialize/Nuke/Import)")
+
+
 def drop_tables():
-    with app.app_context():
-        print("Dropping existing tables...")
-        db.drop_all()
-        db.session.commit()
+    try:
+        with app.app_context():
+            print("Dropping existing tables...")
+            db.drop_all()
+            db.session.commit()
+            print("Dropped existing tables...")
+    except Exception as err:
+        print(err)
+
 
 def create_tables():
-    with app.app_context():
-        print("Creating database tables...")
-        db.create_all()
-        db.session.commit()
+    try:
+        with app.app_context():
+            print("Creating database tables...")
+            db.create_all()
+            db.session.commit()
+            print("Created database tables.")
+    except Exception as err:
+        print(err)
 
-def import_products():
+
+def import_data():
     with app.app_context():
         print("Importing products...")
         products_path = Path(__file__).parent / "products.csv"
         with open(products_path, 'r') as products_file:
             print(f"\nLoading data from {products_path}...")
             for raw_product in csv.DictReader(products_file, delimiter=','):
-                stmt =db.select(Category).wher(Category.name == raw_product.get('category'))
+                stmt =db.select(Category).where(Category.name == raw_product.get('category'))
                 possible_category_obj = db.session.execute(stmt).scalar()
                 if possible_category_obj:
                     category_obj = possible_category_obj
@@ -49,4 +74,5 @@ def import_products():
             print(f"Customer session committed!")
 
 
-
+if __name__ == "__main__":
+    main(sys.argv[1])

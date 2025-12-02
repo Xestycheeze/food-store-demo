@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block pagetitle %}Customers{% endblock %}
+{% block content %}
+<a href="{{ url_for('home') }}">Return to Homepage</a>
+{% if selected_customer %}
+<div>Customer details</div>
+<div>ID: {{selected_customer.id}}</div>
+<div>Name: {{selected_customer.name}}</div>
+<div>Phone: {{selected_customer.phone}}</div>
+{% else %}
+<table>
+    <tr><th>Customers</th></tr>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Phone</th>
+    </tr>
+    {% for customer in customers %}
+        <tr>
+            <td>{{ customer.id }}</td>
+            <td>{{ customer.name }}</td>
+            <td>{{ customer.phone }}</td>
+            <td><a href="{{ url_for('customer_detail', id=customer.id) }}">Details</a></td>
+        </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
