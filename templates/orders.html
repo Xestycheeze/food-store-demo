@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block pagetitle %}Orders{% endblock %}
+{% block content %}
+{% if orders %}
+<table>
+    <tr><th>Orders</th></tr>
+    <tr>
+        <th>Id</th>
+        <th>Customer Id</th>
+        <th>Creation date</th>
+        <th>Completed date</th>
+        <th>Amount</th>
+    </tr>
+    {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.customer_id }}</td>
+            <td>{{ order.created }}</td>
+            {% if order.completed %}
+            <td>{{ order.completed }}</td>
+            {% else %}
+            <td>N/A</td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>
+{% else %}
+{% endif %}
+{% endblock %}

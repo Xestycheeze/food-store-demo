@@ -1,10 +1,14 @@
 import csv, sys
 from pathlib import Path
+from random import randint
+import math
+from datetime import datetime, timedelta
 
+from sqlalchemy import func
 
 from app import app
 from db import db
-from models import Product, Category, Customer
+from models import Product, Category, Customer, Order, ProductOrder
 
 
 def main(cmd):
@@ -16,6 +20,10 @@ def main(cmd):
             drop_tables()
         case "import":
             import_data()
+        case "order":
+            orders = input("Enter the amount of orders: ")
+            products = input("Enter the max amount of product types for each order: ")
+            generate_order(orders, products)
         case _:
             print("Enter a valid command. (Initialize/Nuke/Import)")
 
@@ -72,6 +80,28 @@ def import_data():
                 db.session.add(customer)
             db.session.commit()
             print(f"Customer session committed!")
+
+def generate_order(orders, products):
+    with app.app_context():
+        for i in range(int(orders)):
+            rand_time = datetime.now() - timedelta(days=randint(0, 14), hours=randint(0, 23), minutes=randint(1, 59))
+            random_customer = db.session.execute(db.select(Customer).order_by(func.random())).scalar()
+            new_order = Order(customer=random_customer, created=rand_time)
+            db.session.add(new_order)
+
+            num_prods = randint(1, int(products))
+            random_prods = db.session.execute(db.select(Product).order_by(func.random()).limit(num_prods)).scalars()
+            for random_prod in random_prods:
+                random_request_prod_quantity = randint(1, 1 + math.floor(random_prod.inventory*1.5))
+                new_prod_order = ProductOrder(product=random_prod,
+                                              order=new_order,
+                                              quantity=random_request_prod_quantity)
+                db.session.add(new_prod_order)
+        db.session.commit()
+        print(f"Generated {orders} orders!")
+
+
+
 
 
 if __name__ == "__main__":

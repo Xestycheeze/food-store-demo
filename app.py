@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from pathlib import Path
 from db import db
-from models import Product, Category, Customer
+from models import Product, Category, Customer, Order, ProductOrder
 
 app = Flask(__name__)
 # This will make Flask use a 'sqlite' database with the filename provided
@@ -28,12 +28,6 @@ def categories():
     kategorii = db.session.execute(stmt).scalars().all()
     return render_template("categories.html", categories=kategorii)
 
-@app.route("/customers")
-def customers():
-    stmt = db.select(Customer)
-    klientih = db.session.execute(stmt).scalars().all()
-    return render_template("customers.html", customers=klientih)
-
 @app.route("/categories/<string:name>")
 def category_detail(name):
     stmt = db.select(Product).where(Product.category.has(Category.name == name))
@@ -42,11 +36,23 @@ def category_detail(name):
     # cat.products # contains all the products in that category (use back_populates)
     return render_template("products.html", products=produktih)
 
+@app.route("/customers")
+def customers():
+    stmt = db.select(Customer)
+    klientih = db.session.execute(stmt).scalars().all()
+    return render_template("customers.html", customers=klientih)
+
 @app.route("/customers/<int:id>")
 def customer_detail(id):
     stmt = db.select(Customer).where(Customer.id == id)
     customer = db.session.execute(stmt).scalar()
     return render_template("customers.html", selected_customer=customer)
+
+@app.route("/orders")
+def orders():
+    stmt = db.select(Order)
+    zakazih = db.session.execute(stmt).scalars().all()
+    return render_template("orders.html", orders=zakazih)
 
 
 if __name__ == "__main__":
