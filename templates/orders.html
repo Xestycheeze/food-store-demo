@@ -1,29 +1,77 @@
 {% extends 'base.html' %}
 {% block pagetitle %}Orders{% endblock %}
 {% block content %}
-{% if orders %}
+<p><a href="{{ url_for('home') }}">Return to Homepage</a></p>
+{% if selected_order %}
+<p><a href="{{ url_for('orders')}}">Return to Orders</a></p>
+<p><a href="{{ url_for('customer_detail', id=selected_order.customer_id)}}">Return to the Customer</a></p>
 <table>
-    <tr><th>Orders</th></tr>
+    <tr><th>{{ selected_order.customer.name}}'s order #{{ selected_order.id }} details</th></tr>
     <tr>
-        <th>Id</th>
-        <th>Customer Id</th>
-        <th>Creation date</th>
-        <th>Completed date</th>
-        <th>Amount</th>
+        <th>Item name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>In stock</th>
     </tr>
-    {% for order in orders %}
+    {% for item in selected_order.items %}
+
         <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.customer_id }}</td>
-            <td>{{ order.created }}</td>
-            {% if order.completed %}
-            <td>{{ order.completed }}</td>
-            {% else %}
-            <td>N/A</td>
-            {% endif %}
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.product.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>
+                {{ item.product.inventory }}
+                {% if item.quantity > item.product.inventory and not selected_order.completed %}
+                <span class="warning">Insufficient inventory!</span>
+                {% endif %}
+            </td>
         </tr>
     {% endfor %}
 </table>
+<div>Estimated grand total: ${{ selected_order.estimate() }}</div>
+{% if selected_order.completed == None %}
+<form method="post" action="{{ url_for('complete_order', id=selected_order.id) }}">
+    <button type="submit">Complete order</button>
+</form>
 {% else %}
+<div>Order completed</div>
+{% endif %}
+{% else %}
+<table>
+    <tr><th>Incomplete orders</th></tr>
+    <tr>
+        <th>Order id</th>
+        <th>Customer Name</th>
+        <th>Creation date</th>
+    </tr>
+    {% for order in incomplete_orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.customer.name }}</td>
+            <td>{{ order.created }}</td>
+            <td><a href="{{ url_for('order_detail', id=order.id) }}">Details</a></td>
+        </tr>
+    {% endfor %}
+</table>
+<table>
+    <tr><th>Completed orders</th></tr>
+    <tr>
+        <th>Order id</th>
+        <th>Customer Name</th>
+        <th>Creation date</th>
+        <th>Completed date</th>
+        <th>Amount ($)</th>
+    </tr>
+    {% for order in completed_orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.customer.name }}</td>
+            <td>{{ order.created }}</td>
+            <td>{{ order.completed }}</td>
+            <td>{{ order.amount }}</td>
+            <td><a href="{{ url_for('order_detail', id=order.id) }}">Details</a></td>
+        </tr>
+    {% endfor %}
+</table>
 {% endif %}
 {% endblock %}

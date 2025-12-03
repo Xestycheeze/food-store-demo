@@ -7,6 +7,38 @@
 <div>ID: {{selected_customer.id}}</div>
 <div>Name: {{selected_customer.name}}</div>
 <div>Phone: {{selected_customer.phone}}</div>
+<table>
+    <tr><th>Incomplete orders</th></tr>
+    <tr>
+        <th>Order id</th>
+        <th>Creation date</th>
+    </tr>
+    {% for order in selected_customer.list_incomplete_orders() %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created }}</td>
+            <td><a href="{{ url_for('order_detail', id=order.id) }}">Details</a></td>
+        </tr>
+    {% endfor %}
+</table>
+<table>
+    <tr><th>Completed orders</th></tr>
+    <tr>
+        <th>Order id</th>
+        <th>Creation date</th>
+        <th>Completed date</th>
+        <th>Amount ($)</th>
+    </tr>
+    {% for order in selected_customer.list_complete_orders() %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created }}</td>
+            <td>{{ order.completed }}</td>
+            <td>{{ order.amount }}</td>
+            <td><a href="{{ url_for('order_detail', id=order.id) }}">Details</a></td>
+        </tr>
+    {% endfor %}
+</table>
 {% else %}
 <table>
     <tr><th>Customers</th></tr>

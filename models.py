@@ -31,6 +31,13 @@ class Customer(db.Model):
     phone = mapped_column(String(14))
     orders = relationship("Order", back_populates="customer", cascade="all, delete-orphan")
 
+    def list_incomplete_orders(self):
+        return [order for order in self.orders if order.completed == None]
+
+    def list_complete_orders(self):
+        return [order for order in self.orders if order.completed != None]
+
+
 class Order(db.Model):
     __tablename__ = "orders"
 
@@ -44,6 +51,22 @@ class Order(db.Model):
     created = mapped_column(DateTime, nullable=False, default=func.now())
     completed = mapped_column(DateTime, nullable=True, default=None)
     amount = mapped_column(DECIMAL(6, 2), nullable=True, default=None)
+
+    def estimate(self):
+        total = 0
+        for po in self.items:
+          one = po.product.price * po.quantity
+          total = total + one
+        return total
+
+    def complete(self):
+        for po in self.items:
+            if po.quantity <= po.product.inventory:
+                po.product.inventory = po.product.inventory - po.quantity
+            else:
+                raise ValueError("Insufficient inventory")
+        self.completed = db.func.now()
+        self.amount = self.estimate()
 
 class ProductOrder(db.Model):
     __tablename__ = "product_orders"
